@@ -1,0 +1,11 @@
+[project]
+name = "hexlet-code"
+dependencies = [
+    "flask",
+    "gunicorn",
+    "python-dotenv",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
