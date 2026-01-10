@@ -9,7 +9,8 @@ dependencies = [
     "flask",
     "gunicorn",
     "python-dotenv",
-    "psycopg2-binary"
+    "psycopg2-binary",
+    "validators"
 ]
 
 [tool.hatch.build.targets.wheel]
