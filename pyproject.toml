@@ -8,7 +8,8 @@ version = "0.1.0"
 dependencies = [
     "flask",
     "gunicorn",
-    "python-dotenv"
+    "python-dotenv",
+    "psycopg2-binary"
 ]
 
 [tool.hatch.build.targets.wheel]
