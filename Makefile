@@ -11,4 +11,4 @@ start:
 	uv run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app
 
 render-start:
-	uv run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app
+	/opt/render/.local/bin/uv run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app
