@@ -1,12 +1,12 @@
 import os
-from flask import Flask
 from dotenv import load_dotenv
+from flask import Flask
 
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') or 'default-secret-key'  # или лучше требовать обязательно переменную окружения
-
-@app.route('/')
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "please-set-secret")
+  
+@app.get("/")
 def index():
-    return 'Hello, Hexlet!'
+    return "Hello, hexlet!"
