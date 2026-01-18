@@ -17,3 +17,6 @@ build-backend = "hatchling.build"
 [tool.hatch.envs.default]
 dependencies = ["."]
 allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["page_analyzer"]
