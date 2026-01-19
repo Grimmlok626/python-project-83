@@ -9,7 +9,9 @@ dependencies = [
   "python-dotenv>=0.21",
   "gunicorn>=20.0",
   "psycopg2-binary>=2.9",
-  "validators"
+  "validators",
+  "requests",
+  "beautifulsoup4"
 ]
 
 [build-system]
