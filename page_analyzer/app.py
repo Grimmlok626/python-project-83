@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from dotenv import load_dotenv
 import psycopg2
 import validators
+import requests  # Импортируем requests
 
 load_dotenv()
 
@@ -65,7 +66,6 @@ def show_url(url_id):
         with conn.cursor() as cur:
             cur.execute("SELECT id, name, created_at FROM urls WHERE id=%s;", (url_id,))
             url_record = cur.fetchone()
-            # Получите проверки
             cur.execute("SELECT * FROM url_checks WHERE url_id=%s ORDER BY created_at DESC;", (url_id,))
             url_checks = cur.fetchall()
     if not url_record:
@@ -73,21 +73,41 @@ def show_url(url_id):
         return redirect(url_for("list_urls"))
     return render_template("url.html", url=url_record, url_checks=url_checks)
 
-from flask import jsonify
-
 @app.route('/urls/<int:url_id>/checks', methods=['POST'])
 def create_check(url_id):
-    # В этой версии просто создаем запись с текущей датой и id
+    # Выполняем реальную проверку сайта
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                '''
-                INSERT INTO url_checks (url_id, created_at)
-                VALUES (%s, NOW())
-                RETURNING id, created_at;
-                ''',
-                (url_id,)
-            )
-            check = cur.fetchone()
-    # Возвращаем id и дату проверки
-    return jsonify({'id': check[0], 'created_at': check[1].isoformat()})
+            # Получаем полное имя URL
+            cur.execute("SELECT name FROM urls WHERE id=%s;", (url_id,))
+            record = cur.fetchone()
+            if not record:
+                flash("URL не найден", "error")
+                return redirect(url_for("show_url", url_id=url_id))
+            full_url = record[0]
+            try:
+                response = requests.get(full_url, timeout=5)
+                # Обработка ошибок HTTP
+                response.raise_for_status()
+                status_code = response.status_code
+
+                # Можно дополнительно парсить h1, title, description, если хотите
+                #, например, через BeautifulSoup, но пока пишем только статус
+
+                # Запись в базу данных
+                cur.execute(
+                    '''
+                    INSERT INTO url_checks (url_id, status_code, created_at)
+                    VALUES (%s, %s, NOW())
+                    RETURNING id, created_at;
+                    ''',
+                    (url_id, status_code)
+                )
+                check = cur.fetchone()
+                flash("Проверка выполнена успешно", "success")
+            except requests.RequestException:
+                # Обработка исключений запросов (таймауты, ошибки сети, 5xx и др.)
+                flash("Произошла ошибка при проверке", "error")
+                # Проверка не сохраняется, поэтому просто возвращаем
+                return redirect(url_for("show_url", url_id=url_id))
+    return redirect(url_for("show_url", url_id=url_id))
