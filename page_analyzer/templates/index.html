@@ -1,15 +1,47 @@
-{% extends 'base.html' %}
-{% block title %}Добавить URL{% endblock %}
-{% block content %}
-<h1 class="mb-4">Анализатор страниц</h1>
-<form method="post" class="mb-4" novalidate>
-  <div class="mb-3">
-    <label for="url" class="form-label">Бесплатно проверяйте сайты на SEO-пригодность</label>
-    <input type="text" class="form-control" id="url" name="url" placeholder="https://example.com" required maxlength="255" />
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Page Analyzer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoFfG4k/7UQ0O2QW0CT70ATe1fRb93VYmNsoUOBvlgU+Num1" crossorigin="anonymous" />
+</head>
+<body>
+<div class="container py-5">
+  <h1 class="text-center mb-4">Добавить новый URL</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category=='error' else 'success' }}" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  
+  <form method="post" class="mb-4" id="url-form">
+    <div class="mb-3">
+      <label for="url" class="form-label">URL</label>
+      <input type="text" class="form-control" id="url" name="url" placeholder="https://example.com" required maxlength="255" />
+    </div>
+    <button type="submit" class="btn btn-primary">Добавить</button>
+  </form>
+
+  <div>
+    <a href="{{ url_for('list_urls') }}" class="btn btn-secondary">Посмотреть все URL</a>
   </div>
-  <button type="submit" class="btn btn-primary btn-bordered btn-blue-border">Добавить</button>
-</form>
-<div>
-  <a href="{{ url_for('list_urls') }}" class="btn btn-secondary btn-bordered">Посмотреть все URL</a>
 </div>
-{% endblock %}
+<script>
+  // Дождаться полной загрузки страницы
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.querySelector('button[type="submit"]');
+    if (btn) {
+      // Сделать кнопку активной, если она вдруг была disabled
+      btn.removeAttribute('disabled');
+    }
+  });
+</script>
+</body>
+</html>
