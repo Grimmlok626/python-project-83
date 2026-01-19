@@ -1,11 +1,7 @@
-<!-- templates/urls.html -->
 {% extends 'base.html' %}
-
 {% block title %}Все URL{% endblock %}
-
 {% block content %}
 <h1 class="mb-4">Все добавленные URL</h1>
-
 {% if not urls %}
   <p>Нет добавленных URL.</p>
 {% else %}
@@ -28,6 +24,5 @@
     </tbody>
   </table>
 {% endif %}
-<!-- Кнопка на главную — сделайте ее синей с рамкой -->
 <a href="{{ url_for('index') }}" class="btn btn-primary btn-bordered btn-blue-border">На главную</a>
 {% endblock %}

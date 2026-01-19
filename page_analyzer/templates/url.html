@@ -1,18 +1,11 @@
-<!-- templates/url.html -->
 {% extends 'base.html' %}
-
 {% block title %}URL: {{ url[1] }}{% endblock %}
-
 {% block content %}
 <h1 class="mb-4">URL: {{ url[1] }}</h1>
 <p>Добавлено: {{ url[2] }}</p>
-
-<!-- Кнопка для проверки сайта -->
 <form method="post" action="{{ url_for('create_check', url_id=url[0]) }}">
   <button type="submit" class="btn btn-primary btn-bordered btn-blue-border" data-test="check">Проверить</button>
 </form>
-
-<!-- Таблица проверок -->
 <h2 class="mt-4">Проверки</h2>
 <table class="table" data-test="checks">
   <thead>
@@ -30,10 +23,10 @@
       {% for check in url_checks %}
         <tr>
           <td>{{ check[0] }}</td>
-          <td>{{ check[2] if check[2] is not none else '' }}</td>
-          <td>{{ check[3] if check[3] is not none else '' }}</td>
-          <td>{{ check[4] if check[4] is not none else '' }}</td>
-          <td>{{ check[5] if check[5] is not none else '' }}</td>
+          <td>{{ check[2] }}</td>
+          <td>{{ check[3] }}</td>
+          <td>{{ check[4] }}</td>
+          <td>{{ check[5] }}</td>
           <td>{{ check[6] }}</td>
         </tr>
       {% endfor %}
@@ -44,6 +37,5 @@
     {% endif %}
   </tbody>
 </table>
-
 <a href="{{ url_for('list_urls') }}" class="btn btn-secondary btn-bordered mt-3">Назад к списку</a>
 {% endblock %}

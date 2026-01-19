@@ -1,20 +1,14 @@
-<!-- templates/index.html -->
 {% extends 'base.html' %}
-
 {% block title %}Добавить URL{% endblock %}
-
 {% block content %}
 <h1 class="mb-4">Добавить новый URL</h1>
-
 <form method="post" class="mb-4">
   <div class="mb-3">
     <label for="url" class="form-label">URL</label>
     <input type="text" class="form-control" id="url" name="url" placeholder="https://example.com" required maxlength="255" />
   </div>
-  <!-- Сделайте кнопку синей с рамкой -->
   <button type="submit" class="btn btn-primary btn-bordered btn-blue-border">Добавить</button>
 </form>
-
 <div>
   <a href="{{ url_for('list_urls') }}" class="btn btn-secondary btn-bordered">Посмотреть все URL</a>
 </div>

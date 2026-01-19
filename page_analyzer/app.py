@@ -4,7 +4,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from dotenv import load_dotenv
 import psycopg2
 import validators
-import requests  # Импортируем requests
+import requests
+from bs4 import BeautifulSoup  # импортируем для парсинга HTML
 
 load_dotenv()
 
@@ -20,7 +21,6 @@ def get_connection():
 def index():
     if request.method == "POST":
         url_input = request.form.get("url", "").strip()
-
         # Валидация
         if not url_input:
             flash("Введите URL", "error")
@@ -31,7 +31,6 @@ def index():
         if not validators.url(url_input):
             flash("Некорректный URL", "error")
             return render_template("index.html")
-
         # Проверка и вставка в базу
         try:
             with get_connection() as conn:
@@ -41,15 +40,12 @@ def index():
                     if result:
                         url_id = result[0]
                     else:
-                        # Уже существует, возвратим его id
                         cur.execute("SELECT id FROM urls WHERE name=%s;", (url_input,))
                         url_id = cur.fetchone()[0]
             flash("Страница успешно добавлена", "success")
             return redirect(url_for("show_url", url_id=url_id))
-        except Exception as e:
+        except Exception:
             flash("Ошибка при добавлении URL", "error")
-            return render_template("index.html")
-
     return render_template("index.html")
 
 @app.route("/urls")
@@ -75,10 +71,9 @@ def show_url(url_id):
 
 @app.route('/urls/<int:url_id>/checks', methods=['POST'])
 def create_check(url_id):
-    # Выполняем реальную проверку сайта
     with get_connection() as conn:
         with conn.cursor() as cur:
-            # Получаем полное имя URL
+            # Получаем URL из базы
             cur.execute("SELECT name FROM urls WHERE id=%s;", (url_id,))
             record = cur.fetchone()
             if not record:
@@ -86,28 +81,34 @@ def create_check(url_id):
                 return redirect(url_for("show_url", url_id=url_id))
             full_url = record[0]
             try:
-                response = requests.get(full_url, timeout=5)
-                # Обработка ошибок HTTP
+                response = requests.get(full_url, timeout=10)
                 response.raise_for_status()
                 status_code = response.status_code
 
-                # Можно дополнительно парсить h1, title, description, если хотите
-                #, например, через BeautifulSoup, но пока пишем только статус
+                # Парсим HTML через BeautifulSoup
+                soup = BeautifulSoup(response.text, 'html.parser')
 
-                # Запись в базу данных
+                # Получение <h1>
+                h1_tag = soup.find('h1')
+                h1_text = h1_tag.get_text(strip=True) if h1_tag else ''
+
+                # Получение <title>
+                title_tag = soup.find('title')
+                title_text = title_tag.get_text(strip=True) if title_tag else ''
+
+                # Получение <meta name="description" content="...">
+                meta_desc_tag = soup.find('meta', attrs={'name': 'description'})
+                description_content = meta_desc_tag['content'].strip() if meta_desc_tag and 'content' in meta_desc_tag.attrs else ''
+
+                # Вставляем данные в таблицу
                 cur.execute(
                     '''
-                    INSERT INTO url_checks (url_id, status_code, created_at)
-                    VALUES (%s, %s, NOW())
-                    RETURNING id, created_at;
+                    INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at)
+                    VALUES (%s, %s, %s, %s, %s, NOW())
                     ''',
-                    (url_id, status_code)
+                    (url_id, status_code, h1_text, title_text, description_content)
                 )
-                check = cur.fetchone()
                 flash("Проверка выполнена успешно", "success")
             except requests.RequestException:
-                # Обработка исключений запросов (таймауты, ошибки сети, 5xx и др.)
                 flash("Произошла ошибка при проверке", "error")
-                # Проверка не сохраняется, поэтому просто возвращаем
-                return redirect(url_for("show_url", url_id=url_id))
     return redirect(url_for("show_url", url_id=url_id))
