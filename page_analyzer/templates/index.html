@@ -1,3 +1,4 @@
+<!-- templates/index.html -->
 {% extends 'base.html' %}
 
 {% block title %}Добавить URL{% endblock %}
@@ -10,7 +11,8 @@
     <label for="url" class="form-label">URL</label>
     <input type="text" class="form-control" id="url" name="url" placeholder="https://example.com" required maxlength="255" />
   </div>
-  <button type="submit" class="btn btn-primary btn-bordered">Добавить</button>
+  <!-- Сделайте кнопку синей с рамкой -->
+  <button type="submit" class="btn btn-primary btn-bordered btn-blue-border">Добавить</button>
 </form>
 
 <div>

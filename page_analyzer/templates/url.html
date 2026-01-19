@@ -1,3 +1,4 @@
+<!-- templates/url.html -->
 {% extends 'base.html' %}
 
 {% block title %}URL: {{ url[1] }}{% endblock %}
@@ -8,7 +9,7 @@
 
 <!-- Кнопка для проверки сайта -->
 <form method="post" action="{{ url_for('create_check', url_id=url[0]) }}">
-  <button type="submit" class="btn btn-primary btn-bordered" data-test="check">Проверить</button>
+  <button type="submit" class="btn btn-primary btn-bordered btn-blue-border" data-test="check">Проверить</button>
 </form>
 
 <!-- Таблица проверок -->
