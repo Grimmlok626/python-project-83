@@ -1,57 +1,48 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>URL: {{ url[1] }}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-ENjdO4Dr2bkBIFxQpeoFfG4k/7UQ0O2QW0CT70ATe1fRb93VYmNsoUOBvlgU+Num1" crossorigin="anonymous" />
-</head>
-<body>
-<div class="container py-5">
+{% extends 'base.html' %}
 
-  <h1 class="mb-4">URL: {{ url[1] }}</h1>
-  <p>Добавлено: {{ url[2] }}</p>
+{% block title %}URL: {{ url[1] }}{% endblock %}
 
-  <!-- Кнопка для проверки сайта -->
-  <form method="post" action="{{ url_for('create_check', url_id=url[0]) }}">
-    <button type="submit" class="btn btn-primary mb-4" data-test="check">Проверить</button>
-  </form>
+{% block content %}
+<h1 class="mb-4">URL: {{ url[1] }}</h1>
+<p>Добавлено: {{ url[2] }}</p>
 
-  <!-- Таблица проверок -->
-  <h2>Проверки</h2>
-  <table class="table" data-test="checks">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Статус код</th>
-        <th>H1</th>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Дата проверки</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% if url_checks %}
-        {% for check in url_checks %}
-          <tr>
-            <td>{{ check[0] }}</td>
-            <td>{{ check[2] if check[2] is not none else '' }}</td>
-            <td>{{ check[3] if check[3] is not none else '' }}</td>
-            <td>{{ check[4] if check[4] is not none else '' }}</td>
-            <td>{{ check[5] if check[5] is not none else '' }}</td>
-            <td>{{ check[6] }}</td>
-          </tr>
-        {% endfor %}
-      {% else %}
+<!-- Кнопка для проверки сайта -->
+<form method="post" action="{{ url_for('create_check', url_id=url[0]) }}">
+  <button type="submit" class="btn btn-primary btn-bordered" data-test="check">Проверить</button>
+</form>
+
+<!-- Таблица проверок -->
+<h2 class="mt-4">Проверки</h2>
+<table class="table" data-test="checks">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Статус код</th>
+      <th>H1</th>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Дата проверки</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if url_checks %}
+      {% for check in url_checks %}
         <tr>
-          <td colspan="6">Нет проверок</td>
+          <td>{{ check[0] }}</td>
+          <td>{{ check[2] if check[2] is not none else '' }}</td>
+          <td>{{ check[3] if check[3] is not none else '' }}</td>
+          <td>{{ check[4] if check[4] is not none else '' }}</td>
+          <td>{{ check[5] if check[5] is not none else '' }}</td>
+          <td>{{ check[6] }}</td>
         </tr>
-      {% endif %}
-    </tbody>
-  </table>
+      {% endfor %}
+    {% else %}
+      <tr>
+        <td colspan="6">Нет проверок</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>
 
-  <a href="{{ url_for('list_urls') }}" class="btn btn-secondary">Назад к списку</a>
-</div>
-</body>
-</html>
+<a href="{{ url_for('list_urls') }}" class="btn btn-secondary btn-bordered mt-3">Назад к списку</a>
+{% endblock %}
