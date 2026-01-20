@@ -35,13 +35,13 @@ def get_all_urls():
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT u.id, u.url, u.created_at,
-                       uc.latest_check_at AS last_check_date,
-                       uc.latest_status_code AS last_check_status
+                       uc.latest_check_at,
+                       uc.latest_status_code
                 FROM urls u
                 LEFT JOIN (
-                  SELECT url_id, MAX(created_at) AS latest_check_at, status_code
+                  SELECT DISTINCT ON (url_id) url_id, latest_check_at, latest_status_code
                   FROM url_checks
-                  GROUP BY url_id, status_code
+                  ORDER BY url_id, latest_check_at DESC
                 ) uc ON u.id = uc.url_id
                 ORDER BY u.id DESC;
             """)
