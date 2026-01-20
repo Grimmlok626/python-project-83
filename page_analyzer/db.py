@@ -57,6 +57,11 @@ def add_url_check(url_id, status_code, h1, title, description):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at)
-                VALUES (%s, %s, %s, %s, %s, NOW());
-            """, (url_id, status_code, h1, title, description))
+                INSERT INTO url_checks (
+                    url_id, status_code, h1, title, description, 
+                    latest_check_at, latest_status_code
+                ) VALUES (
+                    %s, %s, %s, %s, %s, NOW(), %s
+                )
+            """, (url_id, status_code, h1, title, description, status_code))
+            conn.commit()
