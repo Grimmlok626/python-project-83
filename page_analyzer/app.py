@@ -48,12 +48,14 @@ def urls_post():
     existing = get_url_by_normalized_url(normalized_url)
     if existing:
         flash("Страница уже существует", "success")
-        return redirect(url_for("show_url", url_id=existing[0]))
+        # редиректим на список URL, чтобы сообщение было видно на /urls
+        return redirect(url_for("list_urls"))
 
     try:
         url_id = add_url(normalized_url)
         flash("Страница успешно добавлена", "success")
-        return redirect(url_for("show_url", url_id=url_id))
+        # редиректим на список URL
+        return redirect(url_for("list_urls"))
     except Exception:
         flash("Ошибка при добавлении сайта", "error")
         return render_template("index.html"), 500
@@ -61,7 +63,6 @@ def urls_post():
 
 @app.route("/urls")
 def list_urls():
-    # Получаем список URL с последней проверкой и статусом
     urls = get_all_urls()
     return render_template("urls.html", urls=urls)
 
@@ -83,7 +84,7 @@ def create_check(url_id):
         flash("URL не найден", "error")
         return redirect(url_for("list_urls"))
 
-    url_value = url_record[1]  # в базе — url
+    url_value = url_record[1]  # во втором элементе — URL
 
     try:
         response = requests.get(url_value, timeout=10)
@@ -91,7 +92,6 @@ def create_check(url_id):
 
         data = parse_site(response.text)
 
-        # Добавляем метку проверки
         from .db import add_url_check
         add_url_check(url_id, response.status_code, data['h1'], data['title'], data['description'])
 
