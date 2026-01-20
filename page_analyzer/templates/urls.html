@@ -11,6 +11,8 @@
         <th>ID</th>
         <th>URL</th>
         <th>Дата добавления</th>
+        <th>Последняя проверка</th>
+        <th>Код ответа</th>
       </tr>
     </thead>
     <tbody>
@@ -19,6 +21,20 @@
         <td>{{ url[0] }}</td>
         <td><a href="{{ url_for('show_url', url_id=url[0]) }}">{{ url[1] }}</a></td>
         <td>{{ url[2] }}</td>
+        <td>
+          {% if url[3] %}
+            {{ url[3] }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td>
+          {% if url[4] %}
+            {{ url[4] }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>

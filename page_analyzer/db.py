@@ -33,7 +33,18 @@ def add_url(normalized_url):
 def get_all_urls():
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT id, url, created_at FROM urls ORDER BY id DESC;")
+            cur.execute("""
+                SELECT u.id, u.url, u.created_at,
+                       uc.latest_check_at AS last_check_date,
+                       uc.latest_status_code AS last_check_status
+                FROM urls u
+                LEFT JOIN (
+                  SELECT url_id, MAX(created_at) AS latest_check_at, status_code
+                  FROM url_checks
+                  GROUP BY url_id, status_code
+                ) uc ON u.id = uc.url_id
+                ORDER BY u.id DESC;
+            """)
             return cur.fetchall()
 
 def get_checks_for_url(url_id):
