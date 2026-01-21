@@ -5,9 +5,14 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_connection():
     url = os.getenv("DATABASE_URL")
-    if url is None:
-        raise Exception("DATABASE_URL не установлена")
-    return psycopg2.connect(url + "?sslmode=require")
+    if not url:
+        raise Exception("Переменная DATABASE_URL не установлена")
+    # Проверяем, если переменная окружения указывает на внешнюю базу (например, с "render.com" или другим внешним сервером)
+    if "render.com" in url or "some-external-domain" in url:
+        return psycopg2.connect(url + "?sslmode=require")
+    else:
+        # Для локальной базы или внутри контейнера — без sslmode
+        return psycopg2.connect(url)
 
 def get_url_by_id(url_id):
     with get_connection() as conn:
