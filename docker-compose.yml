@@ -5,5 +5,8 @@ services:
     build: .
     ports:
       - "8000:8000"
+    env_file:
+      - .env    # теперь все переменные из .env подтягиваются сюда
     environment:
-      DATABASE_URL: "postgresql://database_name_jmr5_user:oOuUdAQUSpFYJbNb8GW81JMsfwOH98XE@dpg-d5mf7g6mcj7s73c20mvg-a.virginia-postgres.render.com/database_name_jmr5"
+      # Можно оставить пустым, .env перекроет
+      DATABASE_URL: ${DATABASE_URL}
