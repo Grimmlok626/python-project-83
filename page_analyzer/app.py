@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
+print(os.getenv('DATABASE_URL'))
 
 from .db import (
     get_url_by_id,

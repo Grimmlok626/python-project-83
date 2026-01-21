@@ -4,7 +4,10 @@ import psycopg2
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_connection():
-    return psycopg2.connect(DATABASE_URL)
+    url = os.getenv("DATABASE_URL")
+    if url is None:
+        raise Exception("DATABASE_URL не установлена")
+    return psycopg2.connect(url + "?sslmode=require")
 
 def get_url_by_id(url_id):
     with get_connection() as conn:
