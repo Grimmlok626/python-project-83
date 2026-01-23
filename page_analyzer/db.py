@@ -6,7 +6,7 @@ def get_connection():
     if not url:
         raise Exception("Переменная DATABASE_URL не установлена")
 
-    # Уже есть sslmode=require в url, поэтому не добавляем ничего вручную
+
     return psycopg2.connect(url)
 
 def get_url_by_id(url_id):
