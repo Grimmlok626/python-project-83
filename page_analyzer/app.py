@@ -40,7 +40,7 @@ def urls_post():
         flash("Некорректный URL", "error")
         return render_template("index.html"), 422
 
-    # Проверка на существование
+    
     existing = get_url_by_normalized_url(normalized_url)
     if existing:
         # Категория и текст под тесты Hexlet
