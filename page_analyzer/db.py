@@ -40,15 +40,8 @@ def get_all_urls():
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT u.id, u.url, u.created_at,
-                       uc.latest_check_at,
-                       uc.latest_status_code
+                SELECT u.id, u.url, u.created_at
                 FROM urls u
-                LEFT JOIN (
-                  SELECT DISTINCT ON (url_id) url_id, latest_check_at, latest_status_code
-                  FROM url_checks
-                  ORDER BY url_id, latest_check_at DESC
-                ) uc ON u.id = uc.url_id
                 ORDER BY u.id DESC;
             """)
             return cur.fetchall()
