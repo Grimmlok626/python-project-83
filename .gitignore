@@ -3,7 +3,6 @@ venv/
 = 
 =20.0
 ERROR
-README.md
 requirements.txt
 *.sha256
 *.log
