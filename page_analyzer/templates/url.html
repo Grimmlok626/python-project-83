@@ -1,14 +1,17 @@
+{# templates/url.html #}
 {% extends 'base.html' %}
 {% block title %}URL: {{ url[1] }}{% endblock %}
 {% block content %}
 <h1 class="mb-4">URL: {{ url[1] }}</h1>
 <p>Добавлено: {{ url[2] }}</p>
 <form method="post" action="{{ url_for('create_check', url_id=url[0]) }}">
-    <input 
-    type="submit" 
-    class="btn btn-primary btn-bordered btn-blue-border" 
-    value="Запустить проверку" 
-    data-test="add" />
+  <button
+    type="submit"
+    class="btn btn-primary btn-bordered btn-blue-border"
+    data-test="check"
+  >
+    Запустить проверку
+  </button>
 </form>
 <h2 class="mt-4">Проверки</h2>
 <table class="table" data-test="checks">
@@ -26,12 +29,12 @@
     {% if url_checks %}
       {% for check in url_checks %}
         <tr>
-          <td>{{ check[0] }}</td> <!-- id -->
-          <td>{{ check[1] }}</td> <!-- status_code -->
-          <td>{{ check[2] }}</td> <!-- h1 -->
-          <td>{{ check[3] }}</td> <!-- title -->
-          <td>{{ check[4] }}</td> <!-- description -->
-          <td>{{ check[5] }}</td> <!-- created_at -->
+          <td>{{ check[0] }}</td>
+          <td>{{ check[1] }}</td>
+          <td>{{ check[2] }}</td>
+          <td>{{ check[3] }}</td>
+          <td>{{ check[4] }}</td>
+          <td>{{ check[5] }}</td>
         </tr>
       {% endfor %}
     {% else %}

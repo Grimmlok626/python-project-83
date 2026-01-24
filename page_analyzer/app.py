@@ -1,8 +1,11 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
-from dotenv import load_dotenv
+from urllib.parse import urlparse
+from datetime import datetime
 import validators
 import requests
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -12,9 +15,8 @@ from .db import (
     add_url,
     get_all_urls,
     get_checks_for_url,
-    add_url_check  # добавим сюда, чтобы не импортировать внутри функции
+    add_url_check
 )
-from .parser import parse_site
 from .url_normalizer import normalize_url
 
 app = Flask(__name__)
@@ -28,72 +30,85 @@ def index():
 
 @app.route("/urls", methods=["POST"])
 def urls_post():
-    url_input = request.form.get("url", "").strip()
+    raw_url = request.form["url"].strip()
+    # 1. Проверяем корректность
+    if not validators.url(raw_url):
+        flash("Некорректный URL", "danger")
+        return redirect(url_for("index"))
 
-    # Валидация
-    if not url_input or len(url_input) > 255 or not validators.url(url_input):
-        flash("Некорректный URL", "error")
-        return render_template("index.html"), 422
+    # 2. Нормализуем
+    normalized = normalize_url(raw_url)
 
-    normalized_url = normalize_url(url_input)
-    if not normalized_url:
-        flash("Некорректный URL", "error")
-        return render_template("index.html"), 422
-
-    existing = get_url_by_normalized_url(normalized_url)
+    # 3. Ищем в БД
+    existing = get_url_by_normalized_url(normalized)
     if existing:
-        flash("Страница уже существует", "error")
-        return redirect(url_for("list_urls"))
-
-    try:
-        url_id = add_url(normalized_url)
-        flash("Страница успешно добавлена", "success")
+        url_id = existing[0]
+        flash("Страница уже существует", "info")
         return redirect(url_for("show_url", url_id=url_id))
-    except Exception:
-        flash("Ошибка при добавлении сайта", "error")
-        return render_template("index.html"), 500
+
+    # 4. Добавляем новую запись
+    url_id = add_url(normalized)  # ваша функция должна вернуть только что созданный id
+    flash("Страница успешно добавлена", "success")
+    return redirect(url_for("show_url", url_id=url_id))
 
 
-@app.route("/urls")
+@app.route("/urls", methods=["GET"])
 def list_urls():
     urls = get_all_urls()
     return render_template("urls.html", urls=urls)
 
 
-@app.route("/urls/<int:url_id>")
+@app.route("/urls/<int:url_id>", methods=["GET"])
 def show_url(url_id):
     url_record = get_url_by_id(url_id)
     if not url_record:
-        flash("URL не найден", "error")
+        flash("URL не найден", "danger")
         return redirect(url_for("list_urls"))
+
     checks = get_checks_for_url(url_id)
     return render_template("url.html", url=url_record, url_checks=checks)
 
 
 @app.route("/urls/<int:url_id>/checks", methods=["POST"])
 def create_check(url_id):
+    # 1. Убедимся, что URL есть в БД
     url_record = get_url_by_id(url_id)
     if not url_record:
-        flash("URL не найден", "error")
-        return redirect(url_for("list_urls"))
+        flash("Страница не найдена", "danger")
+        return redirect(url_for("index"))
 
-    url_value = url_record[1]
+    url = url_record[1]  # предполагаем, что вторым полем возвращается normalized URL
+
     try:
-        response = requests.get(url_value, timeout=10)
-        response.raise_for_status()
+        # 2. Запрашиваем страницу
+        resp = requests.get(url, timeout=5)
+        resp.raise_for_status()
 
-        data = parse_site(response.text)
+        # 3. Парсим ответ
+        soup = BeautifulSoup(resp.text, "html.parser")
+        status_code = resp.status_code
+        h1 = soup.h1.string.strip() if soup.h1 else ""
+        title = soup.title.string.strip() if soup.title else ""
+        desc_tag = soup.find("meta", attrs={"name": "description"})
+        description = desc_tag["content"].strip() if desc_tag and desc_tag.has_attr("content") else ""
 
+        # 4. Сохраняем в БД
+        checked_at = datetime.now()
         add_url_check(
-            url_id,
-            response.status_code,
-            data['h1'],
-            data['title'],
-            data['description']
+            url_id=url_id,
+            status_code=status_code,
+            h1=h1,
+            title=title,
+            description=description,
+            created_at=checked_at,
         )
-
         flash("Страница успешно проверена", "success")
-    except requests.RequestException:
-        flash("Произошла ошибка при проверке", "error")
+
+    except Exception:
+        flash("Не удалось проверить страницу", "danger")
 
     return redirect(url_for("show_url", url_id=url_id))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
