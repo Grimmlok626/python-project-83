@@ -7,7 +7,12 @@
     <label for="url" class="form-label">Бесплатно проверяйте сайты на SEO-пригодность</label>
     <input type="text" class="form-control" id="url" name="url" placeholder="https://example.com" required maxlength="255" />
   </div>
-  <input type="submit" class="btn btn-primary btn-bordered btn-blue-border" value="Добавить" />
+  <!-- Заменил кнопку на input[type="submit"] -->
+  <input 
+    type="submit" 
+    class="btn btn-primary btn-bordered btn-blue-border" 
+    value="Добавить" 
+    data-test="add" />
 </form>
 <div>
   <a href="{{ url_for('list_urls') }}" class="btn btn-secondary btn-bordered">Посмотреть все URL</a>
