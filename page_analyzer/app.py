@@ -77,8 +77,7 @@ def create_check(url_id):
         flash("URL не найден", "error")
         return redirect(url_for("list_urls"))
 
-    url_value = url_record[1]  # второй элемент — URL
-
+    url_value = url_record[1]
     try:
         response = requests.get(url_value, timeout=10)
         response.raise_for_status()
