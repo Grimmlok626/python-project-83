@@ -1,16 +1,10 @@
 import os
-from flask import (
-    Flask, render_template, request, redirect,
-    url_for, flash
-)
-from urllib.parse import urlparse
 from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, flash
 import validators
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-
-load_dotenv()
 
 from .db import (
     get_url_by_id,
@@ -18,9 +12,11 @@ from .db import (
     add_url,
     get_all_urls,
     get_checks_for_url,
-    add_url_check
+    add_url_check,
 )
 from .url_normalizer import normalize_url
+
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "please-set-secret")
@@ -33,10 +29,9 @@ def index():
 
 @app.route("/urls", methods=["POST"])
 def urls_post():
-    raw_url = request.form["url"].strip()
+    raw_url = request.form.get("url", "").strip()
     if not validators.url(raw_url):
         flash("Некорректный URL", "danger")
-        # рендерим главную, но возвращаем статус 422
         return render_template("index.html"), 422
 
     normalized = normalize_url(raw_url)
@@ -78,26 +73,28 @@ def create_check(url_id):
     try:
         resp = requests.get(url, timeout=5)
         resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, "html.parser")
-        status = resp.status_code
-        h1 = soup.h1.string.strip() if soup.h1 else ""
-        title = soup.title.string.strip() if soup.title else ""
-        desc_tag = soup.find("meta", attrs={"name": "description"})
-        description = desc_tag["content"].strip() if desc_tag and desc_tag.has_attr("content") else ""
 
-        # сохраняем успех
+        soup = BeautifulSoup(resp.text, "html.parser")
+        status_code = resp.status_code
+        h1 = soup.h1.string.strip() if soup.h1 and soup.h1.string else ""
+        title = soup.title.string.strip() if soup.title and soup.title.string else ""
+        desc_tag = soup.find("meta", attrs={"name": "description"})
+        description = (
+            desc_tag["content"].strip()
+            if desc_tag and desc_tag.has_attr("content")
+            else ""
+        )
+
         add_url_check(
             url_id=url_id,
-            status_code=status,
+            status_code=status_code,
             h1=h1,
             title=title,
             description=description,
             created_at=datetime.now(),
         )
         flash("Страница успешно проверена", "success")
-
     except Exception:
-        # именно эту фразу ждут тесты
         flash("Произошла ошибка при проверке", "danger")
 
     return redirect(url_for("show_url", url_id=url_id))
