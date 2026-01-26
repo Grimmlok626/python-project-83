@@ -39,11 +39,24 @@ def add_url(normalized_url):
 def get_all_urls():
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("""
-                SELECT u.id, u.url, u.created_at
-                FROM urls u
+            cur.execute(
+                """
+                SELECT
+                  u.id,
+                  u.url,
+                  u.created_at,
+                  uc.status_code
+                FROM urls AS u
+                LEFT JOIN LATERAL (
+                  SELECT status_code
+                  FROM url_checks
+                  WHERE url_id = u.id
+                  ORDER BY created_at DESC
+                  LIMIT 1
+                ) AS uc ON TRUE
                 ORDER BY u.id DESC;
-            """)
+                """
+            )
             return cur.fetchall()
 
 def get_checks_for_url(url_id):
