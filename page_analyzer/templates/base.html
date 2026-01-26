@@ -40,13 +40,14 @@
 <div class="container py-5">
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      {% for category, message in messages %}
-        <div class="flash-message {% if category=='error' %}flash-error{% elif category=='success' %}flash-success{% endif %}">
-          {{ message }}
+      {% for category, msg in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'danger' else category }}" role="alert">
+          {{ msg }}
         </div>
       {% endfor %}
     {% endif %}
   {% endwith %}
+
   {% block content %}{% endblock %}
 </div>
 </body>

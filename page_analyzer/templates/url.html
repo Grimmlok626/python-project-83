@@ -5,13 +5,9 @@
 <h1 class="mb-4">URL: {{ url[1] }}</h1>
 <p>Добавлено: {{ url[2] }}</p>
 <form method="post" action="{{ url_for('create_check', url_id=url[0]) }}">
-  <button
-    type="submit"
-    class="btn btn-primary btn-bordered btn-blue-border"
-    data-test="check"
-  >
-    Запустить проверку
-  </button>
+  <form method="post" action="{{ url_for('create_check', url_id=url[0]) }}">
+    <button data-test="check" type="submit">Запустить проверку</button>
+  </form>
 </form>
 <h2 class="mt-4">Проверки</h2>
 <table class="table" data-test="checks">

@@ -1,5 +1,8 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import (
+    Flask, render_template, request, redirect,
+    url_for, flash
+)
 from urllib.parse import urlparse
 from datetime import datetime
 import validators
@@ -31,23 +34,18 @@ def index():
 @app.route("/urls", methods=["POST"])
 def urls_post():
     raw_url = request.form["url"].strip()
-    # 1. Проверяем корректность
     if not validators.url(raw_url):
         flash("Некорректный URL", "danger")
-        return redirect(url_for("index"))
+        # рендерим главную, но возвращаем статус 422
+        return render_template("index.html"), 422
 
-    # 2. Нормализуем
     normalized = normalize_url(raw_url)
-
-    # 3. Ищем в БД
     existing = get_url_by_normalized_url(normalized)
     if existing:
-        url_id = existing[0]
         flash("Страница уже существует", "info")
-        return redirect(url_for("show_url", url_id=url_id))
+        return redirect(url_for("show_url", url_id=existing[0]))
 
-    # 4. Добавляем новую запись
-    url_id = add_url(normalized)  # ваша функция должна вернуть только что созданный id
+    url_id = add_url(normalized)
     flash("Страница успешно добавлена", "success")
     return redirect(url_for("show_url", url_id=url_id))
 
@@ -71,41 +69,36 @@ def show_url(url_id):
 
 @app.route("/urls/<int:url_id>/checks", methods=["POST"])
 def create_check(url_id):
-    # 1. Убедимся, что URL есть в БД
     url_record = get_url_by_id(url_id)
     if not url_record:
         flash("Страница не найдена", "danger")
         return redirect(url_for("index"))
 
-    url = url_record[1]  # предполагаем, что вторым полем возвращается normalized URL
-
+    url = url_record[1]
     try:
-        # 2. Запрашиваем страницу
         resp = requests.get(url, timeout=5)
         resp.raise_for_status()
-
-        # 3. Парсим ответ
         soup = BeautifulSoup(resp.text, "html.parser")
-        status_code = resp.status_code
+        status = resp.status_code
         h1 = soup.h1.string.strip() if soup.h1 else ""
         title = soup.title.string.strip() if soup.title else ""
         desc_tag = soup.find("meta", attrs={"name": "description"})
         description = desc_tag["content"].strip() if desc_tag and desc_tag.has_attr("content") else ""
 
-        # 4. Сохраняем в БД
-        checked_at = datetime.now()
+        # сохраняем успех
         add_url_check(
             url_id=url_id,
-            status_code=status_code,
+            status_code=status,
             h1=h1,
             title=title,
             description=description,
-            created_at=checked_at,
+            created_at=datetime.now(),
         )
         flash("Страница успешно проверена", "success")
 
     except Exception:
-        flash("Не удалось проверить страницу", "danger")
+        # именно эту фразу ждут тесты
+        flash("Произошла ошибка при проверке", "danger")
 
     return redirect(url_for("show_url", url_id=url_id))
 
