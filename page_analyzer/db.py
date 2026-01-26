@@ -1,5 +1,7 @@
 import os
+
 import psycopg2
+
 
 def get_connection():
     url = os.getenv("DATABASE_URL")
@@ -9,17 +11,30 @@ def get_connection():
 
     return psycopg2.connect(url)
 
+
 def get_url_by_id(url_id):
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT id, url, created_at FROM urls WHERE id=%s;", (url_id,))
+            cur.execute(
+                "SELECT id, url, created_at "
+                "FROM urls "
+                "WHERE id=%s;",
+                (url_id,),
+            )
             return cur.fetchone()
+
 
 def get_url_by_normalized_url(normalized_url):
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT id, url, created_at FROM urls WHERE url=%s;", (normalized_url,))
+            cur.execute(
+                "SELECT id, url, created_at "
+                "FROM urls "
+                "WHERE url=%s;",
+                (normalized_url,),
+            )
             return cur.fetchone()
+
 
 def add_url(normalized_url):
     with get_connection() as conn:
@@ -35,6 +50,7 @@ def add_url(normalized_url):
             else:
                 cur.execute("SELECT id FROM urls WHERE url=%s;", (normalized_url,))
                 return cur.fetchone()[0]
+
 
 def get_all_urls():
     with get_connection() as conn:
@@ -59,6 +75,7 @@ def get_all_urls():
             )
             return cur.fetchall()
 
+
 def get_checks_for_url(url_id):
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -69,6 +86,7 @@ def get_checks_for_url(url_id):
                 ORDER BY created_at DESC;
             """, (url_id,))
             return cur.fetchall()
+
 
 def add_url_check(url_id, status_code, h1, title, description, created_at=None):
     with get_connection() as conn:
