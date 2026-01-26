@@ -1,6 +1,13 @@
 import os
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+)
 import validators
 import requests
 from bs4 import BeautifulSoup
@@ -67,13 +74,16 @@ def create_check(url_id):
     url_record = get_url_by_id(url_id)
     if not url_record:
         flash("Страница не найдена", "danger")
-        return redirect(url_for("index"))
+        return redirect(url_for("list_urls"))
 
     url = url_record[1]
     try:
+        # получаем страницу
         resp = requests.get(url, timeout=5)
         resp.raise_for_status()
 
+        # парсим
+        soup = BeautifulSoup(resp.text, "html.parser")
         status_code = resp.status_code
         h1 = (
             soup.h1.string.strip()
@@ -95,6 +105,7 @@ def create_check(url_id):
             else ""
         )
 
+        # сохраняем в БД
         add_url_check(
             url_id=url_id,
             status_code=status_code,
@@ -103,8 +114,12 @@ def create_check(url_id):
             description=description,
             created_at=datetime.now(),
         )
+
+        # важный flash
         flash("Страница успешно проверена", "success")
-    except Exception:
+
+    except requests.RequestException:
+        # не удалось достучаться до сайта или статус != 200
         flash("Произошла ошибка при проверке", "danger")
 
     return redirect(url_for("show_url", url_id=url_id))
