@@ -10,24 +10,26 @@
     </button>
   </form>
 
-  {% if url_checks %}
-    <table class="table mt-4" data-test="checks">
-      <thead>
+  <table class="table mt-4" data-test="checks">
+    <thead>
+      <tr>
+        <th>Код</th>
+        <th>h1</th>
+        <th>title</th>
+        <th>description</th>
+        <th>Дата проверки</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for check in url_checks %}
         <tr>
-          <th>Код</th><th>h1</th><th>title</th><th>description</th><th>Дата проверки</th>
+          <td>{{ check[1] }}</td>
+          <td>{{ check[2] }}</td>
+          <td>{{ check[3] }}</td>
+          <td>{{ check[4] }}</td>
+          <td>{{ check[5] }}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% for check in url_checks %}
-          <tr>
-            <td>{{ check[2] }}</td>
-            <td>{{ check[3] }}</td>
-            <td>{{ check[4] }}</td>
-            <td>{{ check[5] }}</td>
-            <td>{{ check[6] }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

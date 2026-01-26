@@ -57,11 +57,25 @@ def get_checks_for_url(url_id):
             """, (url_id,))
             return cur.fetchall()
 
-def add_url_check(url_id, status_code, h1, title, description):
+def add_url_check(url_id, status_code, h1, title, description, created_at=None):
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO url_checks (url_id, status_code, h1, title, description)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (url_id, status_code, h1, title, description))
+            if created_at:
+                cur.execute(
+                    """
+                    INSERT INTO url_checks
+                        (url_id, status_code, h1, title, description, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    """,
+                    (url_id, status_code, h1, title, description, created_at),
+                )
+            else:
+                cur.execute(
+                    """
+                    INSERT INTO url_checks
+                        (url_id, status_code, h1, title, description)
+                    VALUES (%s, %s, %s, %s, %s)
+                    """,
+                    (url_id, status_code, h1, title, description),
+                )
             conn.commit()
