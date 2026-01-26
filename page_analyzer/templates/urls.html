@@ -1,36 +1,41 @@
 {% extends 'base.html' %}
-{% block title %}Список URL{% endblock %}
+{% block title %}Все URL{% endblock %}
 
 {% block content %}
-  <h1>Список URL</h1>
-  <a href="{{ url_for('new_url') }}" class="btn btn-primary mb-3">
-    Добавить URL
-  </a>
+  <h1 class="mb-4">Все добавленные URL</h1>
 
-  <table class="table" data-test="urls">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Адрес</th>
-        <th>Дата добавления</th>
-        <th>Код ответа</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for url in urls %}
+  {% if not urls %}
+    <p>Нет добавленных URL.</p>
+  {% else %}
+    <table class="table" data-test="urls">
+      <thead>
         <tr>
-          <td>{{ url[0] }}</td>
-          <td>
-            <a href="{{ url_for('show_url', url_id=url[0]) }}">
-              {{ url[1] }}
-            </a>
-          </td>
-          <td>{{ url[2] }}</td>
-          <td>
-            {{ url[3] if url[3] is not none else '—' }}
-          </td>
+          <th>ID</th>
+          <th>Адрес</th>
+          <th>Дата добавления</th>
+          <th>Код ответа</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for url in urls %}
+          <tr data-test="url">
+            <td>{{ url[0] }}</td>
+            <td>
+              <a href="{{ url_for('show_url', url_id=url[0]) }}">
+                {{ url[1] }}
+              </a>
+            </td>
+            <td>{{ url[2] }}</td>
+            <td>
+              {{ url[3] if url[3] is not none else '—' }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">
+    На главную
+  </a>
 {% endblock %}
