@@ -13,6 +13,7 @@
   <table class="table mt-4" data-test="checks">
     <thead>
       <tr>
+        <th>ID</th>
         <th>Код</th>
         <th>h1</th>
         <th>title</th>
@@ -23,11 +24,12 @@
     <tbody>
       {% for check in url_checks %}
         <tr>
-          <td>{{ check[1] }}</td>
-          <td>{{ check[2] }}</td>
-          <td>{{ check[3] }}</td>
-          <td>{{ check[4] }}</td>
-          <td>{{ check[5] }}</td>
+          <td>{{ check[0] }}</td>  {# id #}
+          <td>{{ check[1] }}</td>  {# status_code #}
+          <td>{{ check[2] }}</td>  {# h1 #}
+          <td>{{ check[3] }}</td>  {# title #}
+          <td>{{ check[4] }}</td>  {# description #}
+          <td>{{ check[5] }}</td>  {# created_at #}
         </tr>
       {% endfor %}
     </tbody>
