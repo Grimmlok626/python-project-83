@@ -13,9 +13,7 @@ def get_url_by_id(url_id):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT id, url, created_at "
-                "FROM urls "
-                "WHERE id=%s;",
+                "SELECT id, url, created_at " "FROM urls " "WHERE id=%s;",
                 (url_id,),
             )
             return cur.fetchone()
@@ -25,9 +23,7 @@ def get_url_by_normalized_url(normalized_url):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT id, url, created_at "
-                "FROM urls "
-                "WHERE url=%s;",
+                "SELECT id, url, created_at " "FROM urls " "WHERE url=%s;",
                 (normalized_url,),
             )
             return cur.fetchone()

@@ -85,16 +85,8 @@ def create_check(url_id):
         # парсим
         soup = BeautifulSoup(resp.text, "html.parser")
         status_code = resp.status_code
-        h1 = (
-            soup.h1.string.strip()
-            if soup.h1 and soup.h1.string
-            else ""
-        )
-        title = (
-            soup.title.string.strip()
-            if soup.title and soup.title.string
-            else ""
-        )
+        h1 = soup.h1.string.strip() if soup.h1 and soup.h1.string else ""
+        title = soup.title.string.strip() if soup.title and soup.title.string else ""
         desc_tag = soup.find(
             "meta",
             attrs={"name": "description"},
