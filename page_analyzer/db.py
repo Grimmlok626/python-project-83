@@ -38,8 +38,8 @@ def add_url(normalized_url):
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO urls (url) VALUES (%s) 
-                ON CONFLICT (url) DO NOTHING 
+                INSERT INTO urls (url) VALUES (%s)
+                ON CONFLICT (url) DO NOTHING
                 RETURNING id;
                 """,
                 (normalized_url,),
@@ -48,7 +48,10 @@ def add_url(normalized_url):
             if result:
                 return result[0]
             else:
-                cur.execute("SELECT id FROM urls WHERE url=%s;", (normalized_url,))
+                cur.execute(
+                    "SELECT id FROM urls WHERE url=%s;",
+                    (normalized_url,),
+                )
                 return cur.fetchone()[0]
 
 
@@ -81,9 +84,9 @@ def get_checks_for_url(url_id):
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT id, status_code, h1, title, description, created_at 
-                FROM url_checks 
-                WHERE url_id=%s 
+                SELECT id, status_code, h1, title, description, created_at
+                FROM url_checks
+                WHERE url_id=%s
                 ORDER BY created_at DESC;
                 """,
                 (url_id,),
