@@ -90,7 +90,8 @@ def get_checks_for_url(url_id):
             return cur.fetchall()
 
 
-def add_url_check(url_id, status_code, h1, title, description, created_at=None):
+def add_url_check(url_id, status_code, h1, title,
+                  description, created_at=None):
     with get_connection() as conn:
         with conn.cursor() as cur:
             if created_at:
