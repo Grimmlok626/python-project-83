@@ -1,18 +1,28 @@
 {% extends 'base.html' %}
+
 {% block title %}Добавить URL{% endblock %}
+
 {% block content %}
 <h1 class="mb-4">Анализатор страниц</h1>
 <form method="post" action="{{ url_for('urls_post') }}" class="mb-4" novalidate>
   <div class="mb-3">
     <label for="url" class="form-label">Бесплатно проверяйте сайты на SEO-пригодность</label>
-    <input type="text" class="form-control" id="url" name="url" placeholder="https://example.com" required maxlength="255" />
+    <input
+      type="text"
+      class="form-control"
+      id="url"
+      name="url"
+      placeholder="https://example.com"
+      required
+      maxlength="255"
+    />
   </div>
-  <!-- Заменил кнопку на input[type="submit"] -->
-  <input 
-    type="submit" 
-    class="btn btn-primary btn-bordered btn-blue-border" 
-    value="Добавить" 
-    data-test="add" />
+  <input
+    type="submit"
+    class="btn btn-primary btn-bordered btn-blue-border"
+    value="Добавить"
+    data-test="add"
+  />
 </form>
 <div>
   <a href="{{ url_for('list_urls') }}" class="btn btn-secondary btn-bordered">Посмотреть все URL</a>

@@ -37,12 +37,14 @@ def index():
 @app.route("/urls", methods=["POST"])
 def urls_post():
     raw_url = request.form.get("url", "").strip()
+
     if not validators.url(raw_url):
         flash("Некорректный URL", "danger")
         return render_template("index.html"), 422
 
     normalized = normalize_url(raw_url)
     existing = get_url_by_normalized_url(normalized)
+
     if existing:
         flash("Страница уже существует", "info")
         return redirect(url_for("show_url", url_id=existing[0]))
@@ -85,12 +87,13 @@ def create_check(url_id):
         # парсим
         soup = BeautifulSoup(resp.text, "html.parser")
         status_code = resp.status_code
-        h1 = soup.h1.string.strip() if soup.h1 and soup.h1.string else ""
-        title = soup.title.string.strip() if soup.title and soup.title.string else ""
-        desc_tag = soup.find(
-            "meta",
-            attrs={"name": "description"},
+        h1 = soup.h1.string.strip() if (soup.h1 and soup.h1.string) else ""
+        title = (
+            soup.title.string.strip()
+            if (soup.title and soup.title.string)
+            else ""
         )
+        desc_tag = soup.find("meta", attrs={"name": "description"})
         description = (
             desc_tag["content"].strip()
             if desc_tag and desc_tag.has_attr("content")
@@ -109,7 +112,6 @@ def create_check(url_id):
 
         # важный flash
         flash("Страница успешно проверена", "success")
-
     except requests.RequestException:
         # не удалось достучаться до сайта или статус != 200
         flash("Произошла ошибка при проверке", "danger")

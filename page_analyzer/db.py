@@ -13,7 +13,7 @@ def get_url_by_id(url_id):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT id, url, created_at " "FROM urls " "WHERE id=%s;",
+                "SELECT id, url, created_at FROM urls WHERE id=%s;",
                 (url_id,),
             )
             return cur.fetchone()
@@ -23,7 +23,7 @@ def get_url_by_normalized_url(normalized_url):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT id, url, created_at " "FROM urls " "WHERE url=%s;",
+                "SELECT id, url, created_at FROM urls WHERE url=%s;",
                 (normalized_url,),
             )
             return cur.fetchone()
@@ -34,7 +34,8 @@ def add_url(normalized_url):
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO urls (url) VALUES (%s)
+                INSERT INTO urls (url)
+                VALUES (%s)
                 ON CONFLICT (url) DO NOTHING
                 RETURNING id;
                 """,
@@ -56,18 +57,14 @@ def get_all_urls():
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT
-                  u.id,
-                  u.url,
-                  u.created_at,
-                  uc.status_code
+                SELECT u.id, u.url, u.created_at, uc.status_code
                 FROM urls AS u
                 LEFT JOIN LATERAL (
-                  SELECT status_code
-                  FROM url_checks
-                  WHERE url_id = u.id
-                  ORDER BY created_at DESC
-                  LIMIT 1
+                    SELECT status_code
+                    FROM url_checks
+                    WHERE url_id = u.id
+                    ORDER BY created_at DESC
+                    LIMIT 1
                 ) AS uc ON TRUE
                 ORDER BY u.id DESC;
                 """
@@ -90,8 +87,9 @@ def get_checks_for_url(url_id):
             return cur.fetchall()
 
 
-def add_url_check(url_id, status_code, h1, title,
-                  description, created_at=None):
+def add_url_check(
+    url_id, status_code, h1, title, description, created_at=None
+):
     with get_connection() as conn:
         with conn.cursor() as cur:
             if created_at:
