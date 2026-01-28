@@ -94,11 +94,9 @@ def add_url_check(
         with conn.cursor() as cur:
             if created_at:
                 cur.execute(
-                    """
-                    INSERT INTO url_checks
-                        (url_id, status_code, h1, title, description, created_at)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                    """,
+                    "INSERT INTO url_checks "
+                    "(url_id, status_code, h1, title, description, created_at) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)",
                     (url_id, status_code, h1, title, description, created_at),
                 )
             else:
