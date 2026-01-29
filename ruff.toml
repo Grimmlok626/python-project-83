@@ -1,3 +1,4 @@
+[lint]
 line-length = 80
-select = ["E", "F", "W"]
 ignore = ["E501"]
+select = ["E", "F", "W"]
